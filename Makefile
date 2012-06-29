@@ -5,6 +5,7 @@ export MEM_TYPE
 DFT_IMAGE=$(DEV_IMAGE)/boot/zImage
 
 BOARD ?= stmp378x_dev
+ELFTOSB ?= elftosb
 
 ifeq ($(BOARD), stmp37xx_dev)
 ARCH = 37xx
@@ -24,12 +25,12 @@ ifeq "$(DFT_IMAGE)" "$(wildcard $(DFT_IMAGE))"
 	@echo "by using the rootfs/boot/zImage"
 	sed -i 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux.bd
 	sed -i 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux_ivt.bd
-	elftosb -z -c ./linux.bd -o i$(ARCH)_linux.sb
-	elftosb -z -f imx28 -c ./linux_ivt.bd -o i$(ARCH)_ivt_linux.sb
+	$(ELFTOSB) -z -c ./linux.bd -o i$(ARCH)_linux.sb
+	$(ELFTOSB) -z -f imx28 -c ./linux_ivt.bd -o i$(ARCH)_ivt_linux.sb
 else
 	@echo "by using the pre-built kernel"
-	elftosb -z -c ./linux.bd -o i$(ARCH)_linux.sb
-	elftosb -z -f imx28 -c  ./linux_ivt.bd -o i$(ARCH)_ivt_linux.sb
+	$(ELFTOSB) -z -c ./linux.bd -o i$(ARCH)_linux.sb
+	$(ELFTOSB) -z -f imx28 -c  ./linux_ivt.bd -o i$(ARCH)_ivt_linux.sb
 endif
 	#@echo "generating kernel bootstream file sd_mmc_bootstream.raw"
 	#Please use cfimager to burn xxx_linux.sb. The below way will no
@@ -56,8 +57,9 @@ boot_prep:
 
 updater: linux_prep boot_prep power_prep
 	@echo "Build updater firmware"
-	elftosb -z -c ./updater.bd -o updater.sb
-	elftosb -z -f imx28 -c ./updater_ivt.bd -o updater_ivt.sb
+	$(ELFTOSB) -z -c ./updater.bd -o updater.sb
+	$(ELFTOSB) -z -f imx28 -c ./updater_ivt.bd -o updater_ivt.sb
+
 linux_prep:
 ifneq "$(CMDLINE1)" ""
 	@echo "by using environment command line"
