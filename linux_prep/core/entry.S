@@ -123,6 +123,9 @@ __div0:
 	.globl	__aeabi_unwind_cpp_pr0
 __aeabi_unwind_cpp_pr0:
 	mov	pc, lr
+	.globl	__aeabi_unwind_cpp_pr1
+__aeabi_unwind_cpp_pr1:
+	mov	pc, lr
 	.globl	raise
 raise:
 	mov	pc, lr
