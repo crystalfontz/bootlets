@@ -3,7 +3,6 @@ MEM_TYPE ?= MEM_DDR1
 export MEM_TYPE
 
 DFT_IMAGE=$(DEV_IMAGE)/boot/zImage
-DFT_UBOOT=$(DEV_IMAGE)/boot/u-boot
 
 BOARD ?= stmp378x_dev
 
@@ -17,12 +16,9 @@ ifeq ($(BOARD), iMX28_EVK)
 ARCH = mx28
 endif
 
-all: build_prep gen_bootstream
+all: gen_bootstream
 
-build_prep:
-
-
-gen_bootstream: linux_prep boot_prep power_prep linux.bd uboot.bd linux.bd uboot.bd updater.bd
+gen_bootstream: linux_prep boot_prep power_prep linux.bd
 	@echo "generating linux kernel boot stream image"
 ifeq "$(DFT_IMAGE)" "$(wildcard $(DFT_IMAGE))"
 	@echo "by using the rootfs/boot/zImage"
@@ -30,20 +26,10 @@ ifeq "$(DFT_IMAGE)" "$(wildcard $(DFT_IMAGE))"
 	sed -i 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux_ivt.bd
 	elftosb -z -c ./linux.bd -o i$(ARCH)_linux.sb
 	elftosb -z -f imx28 -c ./linux_ivt.bd -o i$(ARCH)_ivt_linux.sb
-
-	@echo "by using the rootfs/boot/u-boot"
-	sed -i 's,[^ *]u_boot.*;,\tu_boot="$(DFT_UBOOT)";,' uboot.bd
-	sed -i 's,[^ *]u_boot.*;,\tu_boot="$(DFT_UBOOT)";,' uboot_ivt.bd
-	elftosb -z -c ./uboot.bd -o i$(ARCH)_uboot.sb
-	elftosb -z -f imx28 -c ./uboot_ivt.bd -o i$(ARCH)_ivt_uboot.sb
 else
 	@echo "by using the pre-built kernel"
 	elftosb -z -c ./linux.bd -o i$(ARCH)_linux.sb
 	elftosb -z -f imx28 -c  ./linux_ivt.bd -o i$(ARCH)_ivt_linux.sb
-
-	@echo "generating U-Boot boot stream image"
-	elftosb -z -c ./uboot.bd -o i$(ARCH)_uboot.sb
-	elftosb -z -f imx28 -c ./uboot_ivt.bd -o i$(ARCH)_ivt_uboot.sb
 endif
 	#@echo "generating kernel bootstream file sd_mmc_bootstream.raw"
 	#Please use cfimager to burn xxx_linux.sb. The below way will no

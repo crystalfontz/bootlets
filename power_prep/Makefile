@@ -85,6 +85,6 @@ clean:
 	$(MAKE) clean -C $(COMMONSRCDIR)/hw
 	$(MAKE) clean -C $(COMMONSRCDIR)/drivers
 	@echo Files:
-	rm -f $(POWER_PREP_OBJS)
+	rm -f $(POWER_PREP_OBJS) $(CORE_OBJS)
 	@echo Build output:
 
