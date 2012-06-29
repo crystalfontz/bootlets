@@ -1,0 +1,8 @@
+*.o
+*.a
+*.sb
+boot_prep/boot_prep
+power_prep/power_prep
+*.map
+linux_prep/output-target/
+linux_prep/include/arch
