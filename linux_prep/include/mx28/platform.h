@@ -19,6 +19,8 @@
 
 #if defined (BOARD_MX28_EVK)
 #define	MACHINE_ID	2531
+#elif defined (BOARD_CFA10036)
+#define	MACHINE_ID	4142
 #else
 #error "Allocate a machine ID for your board"
 #endif

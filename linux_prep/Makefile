@@ -69,6 +69,11 @@ ARCH = mx28
 HW_OBJS = $(LRADC_OBJS)
 CFLAGS += -DMX28 -DBOARD_MX28_EVK
 endif
+ifeq ($(BOARD), cfa10036)
+ARCH = mx28
+HW_OBJS = $(LRADC_OBJS)
+CFLAGS += -DMX28 -DBOARD_CFA10036
+endif
 
 # Generic code
 CORE_OBJS = entry.o resume.o cmdlines.o setup.o keys.o

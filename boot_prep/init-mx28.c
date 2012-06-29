@@ -1306,15 +1306,23 @@ int _start(int arg)
 	volatile int *pTest = 0x40000000;
 	int i;
 
+#ifdef BOARD_CFA10036
+	/* Remove all the previous DUART muxing */
+	HW_PINCTRL_MUXSEL6_CLR((3 << 4) | (3 << 6));
+	HW_PINCTRL_MUXSEL7_CLR((3 << 0) | (3 << 2));
+	HW_PINCTRL_MUXSEL7_CLR((3 << 16) | (3 << 18));
+	/* Mux only the DUART to pins actually used for this function */
+	HW_PINCTRL_MUXSEL6_SET((2 << 4) | (2 << 6));
+#else
 	//boot rom wrong use debug uart port.
 	//If fuse burned, the below two line can be removed.
 	HW_PINCTRL_MUXSEL7_CLR(0xF);
 	HW_PINCTRL_MUXSEL7_SET(0xA);
-
 	/* Boot ROM set BANK3_PIN24 as debug uart rx.
 	 * which cause uboot can't input
 	*/
 	HW_PINCTRL_MUXSEL7_SET(0x30000);
+#endif
 
 #ifdef MEM_MDDR
 	/* set to mddr mode*/

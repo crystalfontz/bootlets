@@ -23,6 +23,30 @@ MEM_TYPE ?= MEM_DDR1
 CFLAGS 	= -g -Wall -I$(INCLUDEDIR) -I$(INCLUDEDIR)/mach -I./ -O -D$(MEM_TYPE)
 LDFLAGS = -static -nostdlib -T $(BOOT_LAYOUT)
 
+# The board defines STMP CPU family and peripherial components
+# So, set ARCH and HW_OBJS variables for each supported board
+# separately.
+ifeq ($(BOARD), stmp37xx_dev)
+ARCH = 37xx
+HW_OBJS = $(LRADC_OBJS)
+CFLAGS += -DSTMP37XX -DBOARD_STMP37XX_DEV
+endif
+ifeq ($(BOARD), stmp378x_dev)
+ARCH = mx23
+HW_OBJS = $(LRADC_OBJS)
+CFLAGS += -DSTMP378X -DBOARD_STMP378X_DEV
+endif
+ifeq ($(BOARD), iMX28_EVK)
+ARCH = mx28
+HW_OBJS = $(LRADC_OBJS)
+CFLAGS += -DMX28 -DBOARD_MX28_EVK
+endif
+ifeq ($(BOARD), cfa10036)
+ARCH = mx28
+HW_OBJS = $(LRADC_OBJS)
+CFLAGS += -DMX28 -DBOARD_CFA10036
+endif
+
 # Generic code
 CORE_OBJS = init-$(ARCH).o debug.o
 

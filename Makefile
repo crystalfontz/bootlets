@@ -17,6 +17,9 @@ endif
 ifeq ($(BOARD), iMX28_EVK)
 ARCH = mx28
 endif
+ifeq ($(BOARD), cfa10036)
+ARCH = mx28
+endif
 
 all: linuxsb bareboxsb
 
