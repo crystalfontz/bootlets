@@ -48,4 +48,4 @@ u32 magic_keys[MAGIC_KEY_NR] = {
 /************************************************
  *		Default command line		*
  ************************************************/
-char cmdline_def[] = "console=ttyAM0,115200";
+char cmdline_def[] = "console=ttyAMA0,115200";
