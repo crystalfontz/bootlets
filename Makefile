@@ -3,7 +3,7 @@ MEM_TYPE ?= MEM_DDR1
 export MEM_TYPE
 
 DFT_IMAGE?=$(DEV_IMAGE)/boot/zImage
-BAREBOX_IMAGE?=$(DEV_IMAGE)/boot/barebox
+BAREBOX_IMAGE?=$(DEV_IMAGE)/barebox
 
 BOARD ?= stmp378x_dev
 ELFTOSB ?= elftosb
