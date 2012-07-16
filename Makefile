@@ -67,7 +67,8 @@ linux_prep:
 	$(MAKE) -C linux_prep ARCH=$(ARCH) BOARD=$(BOARD)
 
 install:
-	cp -f *.sb ${DESTDIR}
+	mkdir -p ${DESTDIR}
+	cp -f *.sb ${DESTDIR}/
 
 distclean: clean
 clean:
