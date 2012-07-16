@@ -27,10 +27,10 @@ linuxsb: linux_prep boot_prep power_prep
 	@echo "Generating Linux bootstream image"
 ifeq "$(DFT_IMAGE)" "$(wildcard $(DFT_IMAGE))"
 	@echo "By using $(DFT_IMAGE)"
-	sed -i 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux.bd.tmp
-	sed -i 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux_ivt.bd.tmp
-	$(ELFTOSB) -z -c ./linux.bd -o $(BOARD)_linux.sb
-	$(ELFTOSB) -z -f imx28 -c ./linux_ivt.bd -o $(BOARD)_ivt_linux.sb
+	sed 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux.bd > linux.bd.tmp
+	sed 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux_ivt.bd > linux_ivt.bd.tmp
+	$(ELFTOSB) -z -c ./linux.bd.tmp -o $(BOARD)_linux.sb
+	$(ELFTOSB) -z -f imx28 -c ./linux_ivt.bd.tmp -o $(BOARD)_ivt_linux.sb
 else
 	@echo "by using the pre-built kernel"
 	$(ELFTOSB) -z -c ./linux.bd -o $(BOARD)_linux.sb
@@ -41,7 +41,7 @@ bareboxsb: power_prep boot_prep
 	@echo "Generating Barebox bootstream image"
 ifeq "$(BAREBOX_IMAGE)" "$(wildcard $(BAREBOX_IMAGE))"
 	@echo "By using $(BAREBOX_IMAGE)"
-	sed -i 's,[^ *]barebox.*;,\tbarebox="$(BAREBOX_IMAGE)";,' barebox_ivt.bd.tmp
+	sed 's,[^ *]barebox.*;,\tbarebox="$(BAREBOX_IMAGE)";,' barebox_ivt.bd > barebox_ivt.bd.tmp
 	$(ELFTOSB) -z -f imx28 -c ./barebox_ivt.bd.tmp -o $(BOARD)_ivt_barebox.sb
 	rm -f barebox_ivt.bd.tmp
 else
