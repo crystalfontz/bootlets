@@ -67,14 +67,7 @@ linux_prep:
 	$(MAKE) -C linux_prep ARCH=$(ARCH) BOARD=$(BOARD)
 
 install:
-	cp -f boot_prep/boot_prep  ${DESTDIR}
-	cp -f power_prep/power_prep  ${DESTDIR}
-	cp -f linux_prep/output-target/linux_prep ${DESTDIR}
 	cp -f *.sb ${DESTDIR}
-#	to create finial mfg updater.sb
-#	cp -f elftosb ${DESTDIR}
-	cp -f ./updater*.bd ${DESTDIR}
-	cp -f ./create_updater.sh  ${DESTDIR}
 
 distclean: clean
 clean:
