@@ -25,7 +25,7 @@ all: linuxsb bareboxsb
 
 linuxsb: linux_prep boot_prep power_prep
 	@echo "Generating Linux bootstream image"
-ifneq ($(wildcard $(BAREBOX_IMAGE)),)
+ifeq "$(DFT_IMAGE)" "$(wildcard $(DFT_IMAGE))"
 	@echo "By using $(DFT_IMAGE)"
 	sed -i 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux.bd.tmp
 	sed -i 's,[^ *]zImage.*;,\tzImage="$(DFT_IMAGE)";,' linux_ivt.bd.tmp
@@ -39,7 +39,7 @@ endif
 
 bareboxsb: power_prep boot_prep
 	@echo "Generating Barebox bootstream image"
-ifneq ($(wildcard $(BAREBOX_IMAGE)),)
+ifeq "$(BAREBOX_IMAGE)" "$(wildcard $(BAREBOX_IMAGE))"
 	@echo "By using $(BAREBOX_IMAGE)"
 	sed -i 's,[^ *]barebox.*;,\tbarebox="$(BAREBOX_IMAGE)";,' barebox_ivt.bd.tmp
 	$(ELFTOSB) -z -f imx28 -c ./barebox_ivt.bd.tmp -o $(BOARD)_ivt_barebox.sb
