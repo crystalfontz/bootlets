@@ -752,17 +752,19 @@ void DDR2EmiController_EDE1116_200MHz(void)
 	DRAM_REG[24] = 0x00000000;
 	DRAM_REG[25] = 0x00000000;
 	DRAM_REG[26] = 0x00010101;
-	DRAM_REG[27] = 0x01010101;
+	DRAM_REG[27] = 0x01010101; // 00000001000000010000000100000001
 	DRAM_REG[28] = 0x000f0f01;
-	DRAM_REG[29] = 0x0f02020a;
+//	DRAM_REG[29] = 0x0f02020a; // 000011110000001000000 010 0000 1010
+	DRAM_REG[29] = 0x0f02010a; // 000011110000001000000 010 0000 1010
 	DRAM_REG[30] = 0x00000000;
-	DRAM_REG[31] = 0x00010101;
-	DRAM_REG[32] = 0x00000100;
+	DRAM_REG[31] = 0x00010101; // 000000000000000 1(8 banks) 0000000 1 0000000 1  
+	DRAM_REG[32] = 0x00000100; // 0000000000000000 0000000 1(REDUC) 0000000 REG_DIMM_ENABLE
 	DRAM_REG[33] = 0x00000100;
 	DRAM_REG[34] = 0x00000000;
-	DRAM_REG[35] = 0x00000002;
+	DRAM_REG[35] = 0x00000002; // 000000000000000 0 0000000 0 0000 0010
 	DRAM_REG[36] = 0x01010000;
-	DRAM_REG[37] = 0x07080403;
+//	DRAM_REG[37] = 0x07080403; // 0000 0111 0000 1000 0000 0100 0000 0011 
+	DRAM_REG[37] = 0x07080503; // 0000 0111 0000 1000 0000 0101(CAS5) 0000 0011 
 	DRAM_REG[38] = 0x06005003;
 	DRAM_REG[39] = 0x0a0000c8;
 	DRAM_REG[40] = 0x02009c40;
@@ -1146,7 +1148,7 @@ void init_emi_pin(int pin_voltage,
 		BM_PINCTRL_MUXSEL13_BANK6_PIN23 |
 		BM_PINCTRL_MUXSEL13_BANK6_PIN24 );
 #else
-	/* Configure Bank-3 Pins 0-15 as EMI pins*/
+	/* Configure Bank-3 Pins 0-16 as EMI pins*/
 	HW_PINCTRL_MUXSEL10_CLR(
 		BM_PINCTRL_MUXSEL10_BANK5_PIN00 |
 		BM_PINCTRL_MUXSEL10_BANK5_PIN01 |
@@ -1163,10 +1165,11 @@ void init_emi_pin(int pin_voltage,
 		BM_PINCTRL_MUXSEL10_BANK5_PIN12 |
 		BM_PINCTRL_MUXSEL10_BANK5_PIN13 |
 		BM_PINCTRL_MUXSEL10_BANK5_PIN14 |
-		BM_PINCTRL_MUXSEL10_BANK5_PIN15);
+		BM_PINCTRL_MUXSEL10_BANK5_PIN15 |
+		BM_PINCTRL_MUXSEL10_BANK5_PIN16);
 
 	HW_PINCTRL_MUXSEL11_CLR(
-		BM_PINCTRL_MUXSEL11_BANK5_PIN16 |
+/*		BM_PINCTRL_MUXSEL11_BANK5_PIN16 | */
 		BM_PINCTRL_MUXSEL11_BANK5_PIN17 |
 		BM_PINCTRL_MUXSEL11_BANK5_PIN18 |
 		BM_PINCTRL_MUXSEL11_BANK5_PIN19 |
@@ -1303,8 +1306,9 @@ void poweron_vdda()
 int _start(int arg)
 {
 	unsigned int value;
+/*	volatile int *pTest = 0x40000000; */
 	volatile int *pTest = 0x40000000;
-	int i;
+	int i;                
 
 #ifdef BOARD_CFA10036
 	/* Remove all the previous DUART muxing */
@@ -1392,12 +1396,14 @@ int _start(int arg)
 	/*Test Memory;*/
 	printf("start test memory accress\r\n");
 	printf("ddr2 0x%x\r\n", pTest);
-	for (i = 0; i < 1000; i++)
+	for (i = 0; i < 2000; i++)
 		*pTest++ = i;
 
-	pTest = (volatile int *)0x40000000;
+	pTest = (volatile int *)0x40000000; 
+/*	pTest = (volatile int *)0x80000000; */
 
-	for (i = 0; i < 1000; i++) {
+/*	for (i = 0; i < 1000; i++) { */
+	for (i = 0; i < 2000; i++) {
 		if (*pTest != (i)) {
 			printf("0x%x error value 0x%x\r\n", i, *pTest);
 		}
