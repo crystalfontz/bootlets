@@ -1302,12 +1302,75 @@ void poweron_vdda()
 	HW_POWER_VDDACTRL_WR( BF_POWER_VDDACTRL_TRG(0xC) | BF_POWER_VDDACTRL_BO_OFFSET(7)
 							| BF_POWER_VDDACTRL_LINREG_OFFSET(2) );
 }
+
+/*
+ * Check memory range for valid RAM. A simple memory test determines
+ * the actually available RAM size between addresses `base' and
+ * `base + maxsize'.
+ * Copied and pasted from barebox common/memsize.c file
+ */
+
+#define sync() /* sync is only used for powerPC in barebox. */
+
+long get_ram_size(long *base, long maxsize)
+{
+	volatile long *addr;
+	long           save[32];
+	long           cnt;
+	long           val;
+	long           size;
+	int            i = 0;
+
+	for (cnt = (maxsize / sizeof (long)) >> 1; cnt > 0; cnt >>= 1) {
+		addr = base + cnt;	/* pointer arith! */
+		sync ();
+		save[i++] = *addr;
+		sync ();
+		*addr = ~cnt;
+	}
+
+	addr = base;
+	sync ();
+	save[i] = *addr;
+	sync ();
+	*addr = 0;
+
+	sync ();
+	if ((val = *addr) != 0) {
+		/* Restore the original data before leaving the function.
+		 */
+		sync ();
+		*addr = save[i];
+		for (cnt = 1; cnt < maxsize / sizeof(long); cnt <<= 1) {
+			addr  = base + cnt;
+			sync ();
+			*addr = save[--i];
+		}
+		return (0);
+	}
+
+	for (cnt = 1; cnt < maxsize / sizeof (long); cnt <<= 1) {
+		addr = base + cnt;	/* pointer arith! */
+		val = *addr;
+		*addr = save[--i];
+		if (val != ~cnt) {
+			size = cnt * sizeof (long);
+			/* Restore the original data before leaving the function.
+			 */
+			for (cnt <<= 1; cnt < maxsize / sizeof (long); cnt <<= 1) {
+				addr  = base + cnt;
+				*addr = save[--i];
+			}
+			return (size);
+		}
+	}
+
+	return (maxsize);
+}
+
 int _start(int arg)
 {
 	unsigned int value;
-	volatile int *pTest128;
-	volatile int *pTest256;
-	int i;
 	int memsize;
 
 #ifdef BOARD_CFA10036
@@ -1386,53 +1449,9 @@ int _start(int arg)
 
 	change_cpu_freq();
 
-#if 0
-	for (i = 0; i <= 40; i++) {
-		printf("mem %x - 0x%x\r\n",
-			i, *(volatile int*)(0x800E0000 + i * 4));
-	}
-#endif
+	memsize = get_ram_size(0x40000000, 0x10000000);
 
-	/* Checks to see if we have 128 or 256 Meg modules */
-	printf("Start test memory access\r\n");
-	pTest128 = (volatile int *)0x40000000;
-	printf("ddr2 0x%x\r\n", pTest128);
-	for (i = 0; i < 2000; i++) {
-		*pTest128++ = i;
-	}
-	memsize = 128;
-	pTest128 = (volatile int *)0x40000000;
-	pTest256 = (volatile int *)0x48000000;
-	for (i = 0; i < 2000; i++) {
-		if (*pTest128 != i) {
-			printf("0x%x error value 0x%x\r\n", i, *pTest128);
-			break;
-		}
-		if ((*pTest128) != (*pTest256))
-			memsize = 256;
-		pTest128++;
-		pTest256++;
-	}
-
-	/*
-	 * If we think that we have 256MB, do a quick test on the upper 128MB
-	 * this is pretty much useless as we have already tested the memory
-	 * chip in the code above.
-	 */
-	if (memsize == 256) {
-		printf("DDR2 0x%x\r\n", pTest256);
-		pTest256 = (volatile int *)0x48000000;
-		for (i = 0; i < 2000; i++)
-			*pTest256++ = i;
-		for (i = 0; i < 2000; i++)
-			if (*pTest256 != i) {
-				printf("0x%x error value 0x%x\r\n",
-						i, *pTest256);
-				break;
-			}
-	}
-
-	printf("finish simple test memory size = 0x%xMB\r\n", memsize);
+	printf("finish simple test memory size = 0x%xMB\r\n", memsize >> 20);
 	return 0;
 }
 
