@@ -1168,7 +1168,7 @@ void init_emi_pin(int pin_voltage,
 		BM_PINCTRL_MUXSEL10_BANK5_PIN15);
 
 	HW_PINCTRL_MUXSEL11_CLR(
-		BM_PINCTRL_MUXSEL11_BANK5_PIN16 | 
+		BM_PINCTRL_MUXSEL11_BANK5_PIN16 |
 		BM_PINCTRL_MUXSEL11_BANK5_PIN17 |
 		BM_PINCTRL_MUXSEL11_BANK5_PIN18 |
 		BM_PINCTRL_MUXSEL11_BANK5_PIN19 |
@@ -1305,9 +1305,10 @@ void poweron_vdda()
 int _start(int arg)
 {
 	unsigned int value;
-/*	volatile int *pTest = 0x40000000; */
-	volatile int *pTest = 0x40000000;
-	int i;                
+	volatile int *pTest128;
+	volatile int *pTest256;
+	int i;
+	int memsize;
 
 #ifdef BOARD_CFA10036
 	/* Remove all the previous DUART muxing */
@@ -1392,23 +1393,46 @@ int _start(int arg)
 	}
 #endif
 
-	/*Test Memory;*/
-	printf("start test memory accress\r\n");
-	printf("ddr2 0x%x\r\n", pTest);
-	for (i = 0; i < 2000; i++)
-		*pTest++ = i;
-
-	pTest = (volatile int *)0x40000000; 
-/*	pTest = (volatile int *)0x80000000; */
-
-/*	for (i = 0; i < 1000; i++) { */
+	/* Checks to see if we have 128 or 256 Meg modules */
+	printf("Start test memory access\r\n");
+	pTest128 = (volatile int *)0x40000000;
+	printf("ddr2 0x%x\r\n", pTest128);
 	for (i = 0; i < 2000; i++) {
-		if (*pTest != (i)) {
-			printf("0x%x error value 0x%x\r\n", i, *pTest);
-		}
-		pTest++;
+		*pTest128++ = i;
 	}
-	printf("finish simple test\r\n");
+	memsize = 128;
+	pTest128 = (volatile int *)0x40000000;
+	pTest256 = (volatile int *)0x48000000;
+	for (i = 0; i < 2000; i++) {
+		if (*pTest128 != i) {
+			printf("0x%x error value 0x%x\r\n", i, *pTest128);
+			break;
+		}
+		if ((*pTest128) != (*pTest256))
+			memsize = 256;
+		pTest128++;
+		pTest256++;
+	}
+
+	/*
+	 * If we think that we have 256MB, do a quick test on the upper 128MB
+	 * this is pretty much useless as we have already tested the memory
+	 * chip in the code above.
+	 */
+	if (memsize == 256) {
+		printf("DDR2 0x%x\r\n", pTest256);
+		pTest256 = (volatile int *)0x48000000;
+		for (i = 0; i < 2000; i++)
+			*pTest256++ = i;
+		for (i = 0; i < 2000; i++)
+			if (*pTest256 != i) {
+				printf("0x%x error value 0x%x\r\n",
+						i, *pTest256);
+				break;
+			}
+	}
+
+	printf("finish simple test memory size = 0x%xMB\r\n", memsize);
 	return 0;
 }
 
