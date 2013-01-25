@@ -161,7 +161,7 @@ static void find_command_lines (void)
  * size = #cs * 4 banks * #columns * #rows * 2 bytes/word
  */
 
-#define MAX_ROW		15
+#define MAX_ROW		13
 #define MAX_COLUMN	12
 
 static u32 get_sdram_size (void)
@@ -219,10 +219,6 @@ static void setup_mem_tag (void)
 
 	params->u.mem.start = SDRAM_BASE;
 	params->u.mem.size = get_sdram_size();
-	printf("memory size:\r\n");
-	printf(params->u.mem.size);
-	printf("\r\n");
-
 
 	params = tag_next(params);
 }
