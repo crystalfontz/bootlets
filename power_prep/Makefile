@@ -32,6 +32,11 @@ endif
 CFLAGS 	+= -Wall $(INCLUDEDIRS) -I./ -O -DSTMP378x -D$(ARCH)
 LDFLAGS = -static -gc-sections -nostdlib -T $(BOOT_LAYOUT)
 
+ifeq ($(BOARD), cfa10036)
+ARCH = mx28
+HW_OBJS = $(LRADC_OBJS)
+CFLAGS += -DMX28 -DBOARD_CFA10036
+endif
 
 #TOP_LEVEL_OBJS = power_prep.o
 

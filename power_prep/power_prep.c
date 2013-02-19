@@ -205,6 +205,16 @@ bool IsBattLevelValidForBoot( void )
 int _start( void )
 {
 	int iRtn = SUCCESS;
+
+#ifdef BOARD_CFA10036
+        /* Remove all the previous DUART muxing */
+        HW_PINCTRL_MUXSEL6_CLR((3 << 4) | (3 << 6));
+        HW_PINCTRL_MUXSEL7_CLR((3 << 0) | (3 << 2));
+        HW_PINCTRL_MUXSEL7_CLR((3 << 16) | (3 << 18));
+        /* Mux only the DUART to pins actually used for this function */
+        HW_PINCTRL_MUXSEL6_SET((2 << 4) | (2 << 6));
+#endif
+
 #ifndef mx28
 	HW_DIGCTL_CTRL_SET(BM_DIGCTL_CTRL_USE_SERIAL_JTAG);
 #else
